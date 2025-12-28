@@ -2,26 +2,26 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Admin from '@/models/Admin';
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
     try {
-        // Security check - only allow in development
-        if (process.env.NODE_ENV === 'production') {
+        await connectDB();
+
+        // Simple security check using a query parameter
+        // Usage: /api/admin/seed?secret=whf_admin_setup
+        const { searchParams } = new URL(request.url);
+        const secret = searchParams.get('secret');
+
+        if (secret !== 'whf_admin_setup') {
             return NextResponse.json(
-                { error: 'This endpoint is disabled in production for security' },
+                { error: 'Unauthorized. Please provide the correct secret key.' },
                 { status: 403 }
             );
         }
 
-        await connectDB();
-
-        // Get admin data from request body
-        const body = await request.json();
-        const {
-            email = 'admin@whfnepal.org',
-            password = 'Admin@123',
-            name = 'WHF Nepal Admin',
-            role = 'super_admin'
-        } = body;
+        const email = 'admin@whfnepal.org';
+        const password = 'Admin@123';
+        const name = 'WHF Nepal Admin';
+        const role = 'super_admin';
 
         // Check if admin already exists
         const existingAdmin = await Admin.findOne({ email });
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json(
                 {
                     error: 'Admin user already exists',
-                    message: `An admin with email ${email} already exists in the database`
+                    message: `An admin with email ${email} already exists.`
                 },
                 { status: 409 }
             );
@@ -49,11 +49,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({
             success: true,
             message: 'Admin user created successfully',
-            data: {
-                email: admin.email,
-                name: admin.name,
-                role: admin.role,
-                createdAt: admin.createdAt
+            credentials: {
+                email,
+                password
             }
         }, { status: 201 });
 

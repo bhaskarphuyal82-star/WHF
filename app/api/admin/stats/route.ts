@@ -20,14 +20,20 @@ export async function GET() {
             videosCount,
             representativesCount,
             galleriesCount,
-            usersCount
+            usersCount,
+            recentMembers
         ] = await Promise.all([
             Post.countDocuments(),
             Event.countDocuments(),
             VideoModel.countDocuments(),
             Representative.countDocuments(),
             Gallery.countDocuments(),
-            User.countDocuments({ role: 'member' })
+            User.countDocuments({ role: 'member' }),
+            User.find({ role: 'member' })
+                .select('name email membershipDate memberId image')
+                .sort({ createdAt: -1 })
+                .limit(5)
+                .lean()
         ]);
 
         return NextResponse.json({
@@ -36,7 +42,8 @@ export async function GET() {
             videos: videosCount,
             representatives: representativesCount,
             galleries: galleriesCount,
-            users: usersCount
+            users: usersCount,
+            recentMembers
         });
     } catch (error) {
         console.error('Failed to fetch admin stats:', error);
