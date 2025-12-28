@@ -6,6 +6,7 @@ import LiveStreamSection from "@/components/LiveStreamSection";
 import MembersSection from "@/components/MembersSection";
 import PhotoGallery from "@/components/PhotoGallery";
 import AffiliatedOrgsSection from "@/components/AffiliatedOrgsSection";
+import ChatWidget from "@/components/ChatWidget";
 import { Sparkles, Users, Heart, Calendar, ArrowRight, Image as ImageIcon, MapPin } from "lucide-react";
 import connectDB from "@/lib/mongodb";
 import Post from "@/models/Post";
@@ -470,6 +471,7 @@ export default async function Home() {
       )}
 
       {/* Footer */}
+      <ChatWidget />
       <Footer />
     </div>
   );

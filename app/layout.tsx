@@ -17,6 +17,7 @@ export const metadata: Metadata = {
   description: "World Hindu Federation Nepal is a non-profit advocacy organization dedicated to promoting Hindu values, culture, and community welfare in Nepal.",
 };
 
+import { AuthProvider } from "@/components/Providers";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export default function RootLayout({
@@ -30,14 +31,16 @@ export default function RootLayout({
         suppressHydrationWarning={true}
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

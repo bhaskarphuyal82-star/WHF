@@ -127,87 +127,99 @@ export default function LiveStreamsPage() {
                         </Button>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {liveStreams.map((stream) => (
-                            <div key={stream._id} className="group bg-white/5 border border-white/10 rounded-lg overflow-hidden hover:border-orange-500/50 transition-colors">
-                                {/* Thumbnail */}
-                                <div className="relative aspect-video bg-gradient-to-br from-orange-500/20 to-red-500/20">
-                                    {stream.thumbnail ? (
-                                        <img
-                                            src={stream.thumbnail}
-                                            alt={stream.title}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <div className="flex items-center justify-center h-full">
-                                            <Radio className="w-12 h-12 text-gray-500" />
-                                        </div>
-                                    )}
-                                    {/* Live Indicator Overlay */}
-                                    {stream.status === 'Live' && (
-                                        <div className="absolute top-2 left-2">
-                                            <span className="px-2 py-1 text-xs font-bold bg-red-600 text-white rounded flex items-center gap-1 shadow-lg">
-                                                <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                                                LIVE
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Content */}
-                                <div className="p-4 space-y-3">
-                                    <div>
-                                        <h3 className="text-white font-medium line-clamp-2">{stream.title}</h3>
-                                        <div className="flex items-center gap-2 mt-2 text-sm text-gray-400">
-                                            <MapPin className="w-4 h-4 text-orange-500" />
-                                            {stream.location}
-                                        </div>
-                                        <div className="flex items-center gap-2 mt-2">
-                                            {getStatusBadge(stream.status)}
-                                            <span className={`px-2 py-1 text-xs font-medium rounded ${stream.isActive
-                                                ? 'bg-green-500/20 text-green-400'
-                                                : 'bg-gray-500/20 text-gray-400'
-                                                }`}>
-                                                {stream.isActive ? 'Active' : 'Inactive'}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    {stream.scheduledAt && stream.status === 'Scheduled' && (
-                                        <div className="flex items-center gap-1 text-sm text-gray-400">
-                                            <Calendar className="w-4 h-4" />
-                                            {formatDate(stream.scheduledAt)}
-                                        </div>
-                                    )}
-
-                                    <div className="flex items-center gap-1 text-sm text-gray-400">
-                                        <Eye className="w-4 h-4" />
-                                        {stream.views} views
-                                    </div>
-
-                                    {/* Actions */}
-                                    <div className="flex gap-2 pt-2">
-                                        <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="flex-1 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
-                                            onClick={() => router.push(`/admin/livestreams/edit/${stream._id}`)}
-                                        >
-                                            <Edit className="w-4 h-4 mr-1" />
-                                            Edit
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                                            onClick={() => handleDelete(stream._id)}
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-white/5 border-b border-white/10 text-gray-400 uppercase text-xs font-semibold">
+                                <tr>
+                                    <th className="px-6 py-4">Thumbnail</th>
+                                    <th className="px-6 py-4">Stream Details</th>
+                                    <th className="px-6 py-4">Status</th>
+                                    <th className="px-6 py-4">Views</th>
+                                    <th className="px-6 py-4 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/10">
+                                {liveStreams.map((stream) => (
+                                    <tr key={stream._id} className="group hover:bg-white/5 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <div className="w-24 h-16 bg-white/10 rounded overflow-hidden relative">
+                                                {stream.thumbnail ? (
+                                                    <img
+                                                        src={stream.thumbnail}
+                                                        alt={stream.title}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="flex items-center justify-center h-full text-gray-500">
+                                                        <Radio className="w-6 h-6" />
+                                                    </div>
+                                                )}
+                                                {stream.status === 'Live' && (
+                                                    <div className="absolute top-1 left-1">
+                                                        <span className="flex h-2 w-2">
+                                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="space-y-1">
+                                                <div className="font-medium text-white line-clamp-1">{stream.title}</div>
+                                                <div className="flex items-center gap-2 text-xs text-gray-400">
+                                                    <MapPin className="w-3 h-3" />
+                                                    {stream.location}
+                                                </div>
+                                                {stream.scheduledAt && stream.status === 'Scheduled' && (
+                                                    <div className="flex items-center gap-2 text-xs text-orange-400">
+                                                        <Calendar className="w-3 h-3" />
+                                                        {formatDate(stream.scheduledAt)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col gap-2 items-start">
+                                                {getStatusBadge(stream.status)}
+                                                <span className={`px-2 py-0.5 text-[10px] uppercase font-bold rounded-full border ${stream.isActive
+                                                        ? 'border-green-500/30 text-green-400 bg-green-500/10'
+                                                        : 'border-gray-500/30 text-gray-400 bg-gray-500/10'
+                                                    }`}>
+                                                    {stream.isActive ? 'Visible' : 'Hidden'}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-gray-300">
+                                            <div className="flex items-center gap-1.5">
+                                                <Eye className="w-4 h-4 text-gray-500" />
+                                                {stream.views.toLocaleString()}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    className="h-8 w-8 p-0 text-blue-400 hover:text-blue-300 hover:bg-blue-500/20"
+                                                    onClick={() => router.push(`/admin/livestreams/edit/${stream._id}`)}
+                                                >
+                                                    <Edit className="w-4 h-4" />
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    className="h-8 w-8 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/20"
+                                                    onClick={() => handleDelete(stream._id)}
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 )}
             </div>

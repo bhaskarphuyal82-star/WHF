@@ -215,6 +215,7 @@ export default function RegisterPage() {
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                             className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-orange-500/50"
                                             placeholder="तपाईंको पूरा नाम"
+                                            autoComplete="off"
                                         />
                                     </div>
                                     <div className="space-y-2">

@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
     LayoutDashboard,
+    MessageSquare,
     FileText,
     Calendar,
     Video,
@@ -20,6 +21,7 @@ import { cn } from "@/lib/utils";
 
 const navigation = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+    { name: "Messages", href: "/admin/messages", icon: MessageSquare },
     { name: "Posts", href: "/admin/posts", icon: FileText },
     { name: "Events", href: "/admin/events", icon: Calendar },
     { name: "Videos", href: "/admin/videos", icon: Video },
