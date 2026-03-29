@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import AdminSidebar from "@/components/admin/Sidebar";
 import { LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useSiteSettings } from '@/components/SiteSettingsContext';
 
 interface User {
     id: string;
@@ -22,6 +23,7 @@ export default function AdminLayout({
     const pathname = usePathname();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const { settings } = useSiteSettings();
 
 
 
@@ -81,9 +83,11 @@ export default function AdminLayout({
                 {/* Header */}
                 <header className="h-20 border-b border-white/10 bg-gradient-to-r from-black to-gray-900/50 backdrop-blur-sm">
                     <div className="h-full px-8 flex items-center justify-between">
-                        <div>
-                            <h2 className="text-2xl font-bold text-white">Admin Panel</h2>
-                            <p className="text-sm text-gray-400">Manage your content</p>
+                        <div className="flex flex-col">
+                            <h2 className="text-xl font-bold text-white leading-tight">
+                                {settings.siteName}
+                            </h2>
+                            <p className="text-xs text-orange-400 font-medium tracking-wider">Admin Control Panel</p>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="text-right">

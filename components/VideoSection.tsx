@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Video, X, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -70,14 +70,23 @@ function getVideoThumbnail(video: VideoItem): string | null {
 export default function VideoSection({ videos }: VideoSectionProps) {
     const [selectedVideo, setSelectedVideo] = useState<VideoItem | null>(null);
 
+    useEffect(() => {
+        if (selectedVideo) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [selectedVideo]);
+
     const openVideoModal = (video: VideoItem) => {
         setSelectedVideo(video);
-        document.body.style.overflow = 'hidden';
     };
 
     const closeVideoModal = () => {
         setSelectedVideo(null);
-        document.body.style.overflow = 'auto';
     };
 
     return (

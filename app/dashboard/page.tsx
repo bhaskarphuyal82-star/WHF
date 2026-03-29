@@ -23,6 +23,7 @@ interface MemberData {
         tole?: string;
     };
     membershipStatus: string;
+    membershipType: 'Regular' | 'Lifetime';
     membershipDate?: string;
     createdAt: string;
 }
@@ -218,7 +219,7 @@ export default function MemberDashboard() {
                         </div>
 
                         {/* Status Badge */}
-                        <div className="mt-4 flex items-center gap-4">
+                        <div className="mt-4 flex items-center flex-wrap gap-4">
                             <span className={`px-3 py-1 text-sm font-medium rounded-full ${member.membershipStatus === 'Approved'
                                 ? 'bg-green-500/20 text-green-400'
                                 : member.membershipStatus === 'Rejected'
@@ -227,6 +228,14 @@ export default function MemberDashboard() {
                                 }`}>
                                 {member.membershipStatus === 'Approved' ? 'सक्रिय सदस्य' :
                                     member.membershipStatus === 'Rejected' ? 'अस्वीकृत' : 'पेन्डिङ'}
+                            </span>
+                            
+                            {/* Membership Type Badge */}
+                            <span className={`px-3 py-1 text-sm font-medium rounded-full ${member.membershipType === 'Lifetime'
+                                ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                                : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                }`}>
+                                {member.membershipType === 'Lifetime' ? 'आजीवन सदस्य' : 'साधारण सदस्य'}
                             </span>
                             {member.membershipDate && (
                                 <span className="text-sm text-gray-500 flex items-center gap-1">
@@ -297,7 +306,7 @@ export default function MemberDashboard() {
                     onClose={() => setShowCardModal(false)}
                     data={{
                         ...member,
-                        position: 'General Member' // Default position for members
+                        position: member.membershipType === 'Lifetime' ? 'आजीवन सदस्य' : 'साधारण सदस्य'
                     }}
                 />
             )}

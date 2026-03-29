@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { IRepresentative } from "@/models/Representative";
+import type { IRepresentative } from "@/models/Representative";
 
 interface VisitingCardProps {
     data: IRepresentative;
@@ -10,264 +10,302 @@ interface VisitingCardProps {
         title: string;
         signature: string;
     };
+    siteSettings?: {
+        siteName: string;
+        siteLogo: string;
+    };
 }
 
-export default function VisitingCard({ data, id, chairmanDetails }: VisitingCardProps) {
-    // Falls back to hardcoded if not provided
-    const cName = chairmanDetails?.name || 'डा. रामचन्द्र अधिकारी';
-    const cTitle = chairmanDetails?.title || 'अध्यक्ष';
+export default function VisitingCard({ data, id, chairmanDetails, siteSettings }: VisitingCardProps) {
     const cSignature = chairmanDetails?.signature || '/signature.png';
+    const sName = siteSettings?.siteName || 'विश्व हिन्दु महासंघ नेपाल';
+    const sLogo = siteSettings?.siteLogo || '/whf-logo.png';
 
-    // Helper to add cache buster to images, but SKIP for blob/data URLs
     const getCorsUrl = (url?: string) => {
         if (!url) return "";
         if (url.startsWith('blob:') || url.startsWith('data:')) return url;
+        // Add cache buster for fresh renders
         return `${url}${url.includes('?') ? '&' : '?'}t=${new Date().getTime()}`;
-    };
-
-    // Helper to format address
-    const getAddress = () => {
+    };    const getAddress = () => {
         const addr = (data as any).address;
-        if (!addr) return null;
+        if (!addr) return "ललितपुर, नेपाल";
         const parts = [addr.municipality, addr.district].filter(Boolean);
         return parts.join(', ');
     };
 
-    const formattedAddress = getAddress();
-
+    const getPosition = () => {
+        const pos = data.position || '';
+        if (pos === 'Regular Member') return 'साधारण सदस्य';
+        if (pos === 'Lifetime Member') return 'आजीवन सदस्य';
+        return pos || 'साधारण सदस्य';
+    };
     return (
         <div
             id={id}
             style={{
-                width: '600px',
-                height: '350px',
+                width: '400px',
+                height: '640px',
                 backgroundColor: '#ffffff',
-                backgroundImage: 'radial-gradient(circle at top right, #fff7ed 0%, #ffffff 40%)',
-                fontFamily: "'Inter', sans-serif",
+                fontFamily: "'Noto Sans Devanagari', sans-serif, 'Arial'",
                 position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
-                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+                color: '#333'
             }}
         >
-            {/* LARGE Watermark Background */}
-            <div
-                style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: '400px',
-                    height: '400px',
-                    opacity: 0.08,
-                    zIndex: 0,
-                    pointerEvents: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}
-            >
-                <img
-                    src="/om-bg.png"
-                    alt="Background"
-                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                />
-            </div>
-
-            {/* Top Orange Bar */}
+            {/* 1. ORANGE HEADER SECTION */}
             <div style={{
-                height: '8px',
+                height: '220px',
                 width: '100%',
-                background: 'linear-gradient(90deg, #ea580c 0%, #dc2626 100%)',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                zIndex: 20
-            }} />
-
-            {/* Header Area */}
-            <div style={{
-                padding: '32px 32px 0 32px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
+                background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
                 position: 'relative',
-                zIndex: 10
-            }}>
-                {/* Logo & Org Name */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <img
-                        src="/whf-logo.png"
-                        alt="WHF Logo"
-                        style={{ width: '72px', height: '72px', objectFit: 'contain' }}
-                    />
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <h1 style={{
-                            fontSize: '22px',
-                            fontWeight: 800,
-                            color: '#111827',
-                            lineHeight: 1.1,
-                            margin: 0,
-                            fontFamily: 'Arial, sans-serif' // Fallback for specialized font
-                        }}>
-                            World Hindu Federation
-                        </h1>
-                        <h2 style={{
-                            color: '#ea580c',
-                            fontWeight: 700,
-                            fontSize: '13px',
-                            letterSpacing: '0.12em',
-                            textTransform: 'uppercase',
-                            marginTop: '4px',
-                            margin: 0
-                        }}>
-                            Nepal National Chapter
-                        </h2>
-                    </div>
-                </div>
-
-                {/* Profile Photo - Circular with Border */}
-                {data.image && (
-                    <div style={{
-                        width: '100px',
-                        height: '100px',
-                        borderRadius: '50%',
-                        border: '4px solid #fff',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                        overflow: 'hidden',
-                        position: 'relative',
-                        zIndex: 20,
-                        backgroundColor: '#f3f4f6'
-                    }}>
-                        <img
-                            src={getCorsUrl(data.image)}
-                            alt={data.name}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            {...(!data.image?.startsWith('blob:') && !data.image?.startsWith('data:') ? { crossOrigin: "anonymous" } : {})}
-                        />
-                    </div>
-                )}
-            </div>
-
-            {/* Main Content Area */}
-            <div style={{
-                padding: '0 32px',
-                flex: 1,
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: 'center',
-                position: 'relative',
-                zIndex: 10,
-                marginTop: '-10px' // Pull layout up slightly
+                alignItems: 'center',
+                paddingTop: '35px',
+                color: 'white',
+                borderBottomLeftRadius: '50% 15px',
+                borderBottomRightRadius: '50% 15px',
+                zIndex: 10
             }}>
-                {/* Name & ID Row */}
-                <div style={{ marginBottom: '8px' }}>
-                    <h2 style={{
-                        fontSize: '24px',
-                        fontWeight: 800,
-                        color: '#1f2937',
-                        margin: 0,
-                        lineHeight: 1.2
-                    }}>
-                        {data.name}
-                    </h2>
-                </div>
-
-                {/* Position Badge */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                    <span style={{
-                        color: '#ea580c',
-                        fontWeight: 700,
-                        fontSize: '14px',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em'
-                    }}>
-                        {data.position}
-                    </span>
-                    {(data as any).memberId && (
-                        <div style={{
-                            backgroundColor: '#fff7ed',
-                            padding: '2px 8px',
-                            borderRadius: '4px',
-                            fontSize: '11px',
-                            fontWeight: 700,
-                            color: '#c2410c',
-                            border: '1px solid #ffedd5',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                        }}>
-                            <span>ID:</span>
-                            <span style={{ color: '#9a3412' }}>{(data as any).memberId}</span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Contact Details Grid - Compact */}
+                {/* Registration Number Top Right */}
                 <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr',
-                    gap: '4px',
+                    position: 'absolute',
+                    top: '12px',
+                    right: '15px',
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    opacity: 0.9
+                }}>
+                    दर्ता नं. जि.प्र.का. काठमाडौं ३३८ / ०६० / ०६१
+                </div>
+
+                {/* Logo & Flags Container */}
+                <div style={{
                     width: '100%',
-                    marginTop: '8px'
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    padding: '0 25px',
+                    marginTop: '5px'
                 }}>
-                    {data.phone && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#374151', fontWeight: 500 }}>
-                            <span style={{ color: '#ea580c', fontWeight: 700, width: '45px' }}>Phone:</span>
-                            {data.phone}
+                    {/* Organization Logo */}
+                    <div style={{
+                        width: '65px',
+                        height: '65px',
+                        backgroundColor: 'white',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '4px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                    }}>
+                        <img src={getCorsUrl(sLogo)} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    </div>
+
+                    {/* DHARMA & MOTTO */}
+                    <div style={{ textAlign: 'center', flex: 1 }}>
+                        <div style={{ fontSize: '20px', fontWeight: 900, marginBottom: '2px' }}>ॐ</div>
+                        <div style={{ fontSize: '11px', fontWeight: 600, fontStyle: 'italic', letterSpacing: '0.05em' }}>&quot;धर्मी रक्षति रक्षितः&quot;</div>
+                    </div>
+
+                    {/* Flags */}
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                        <div style={{ width: '35px', height: '45px', position: 'relative' }}>
+                             {/* Nepal Flag approximation */}
+                             <div style={{ width: '100%', height: '100%', clipPath: 'polygon(0% 0%, 100% 40%, 0% 50%, 100% 90%, 0% 100%)', backgroundColor: '#dc2626', border: '2px solid #1d4ed8' }}>
+                                <div style={{ position: 'absolute', top: '15%', left: '15%', color: 'white', fontSize: '8px' }}>☀️</div>
+                                <div style={{ position: 'absolute', bottom: '15%', left: '15%', color: 'white', fontSize: '8px' }}>🌙</div>
+                             </div>
                         </div>
-                    )}
-                    {data.email && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#374151', fontWeight: 500 }}>
-                            <span style={{ color: '#ea580c', fontWeight: 700, width: '45px' }}>Email:</span>
-                            {data.email}
-                        </div>
-                    )}
-                    {formattedAddress && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#374151', fontWeight: 500, gridColumn: '1 / -1' }}>
-                            <span style={{ color: '#ea580c', fontWeight: 700, width: '45px' }}>Addr:</span>
-                            {formattedAddress}
-                        </div>
-                    )}
+                    </div>
+                </div>
+
+                {/* SITE NAME (Yellow Large) */}
+                <h1 style={{
+                    fontSize: '26px',
+                    fontWeight: 900,
+                    color: '#fbbf24',
+                    marginTop: '15px',
+                    textAlign: 'center',
+                    textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
+                    margin: '10px 0 2px 0'
+                }}>
+                    {sName}
+                </h1>
+                <div style={{ fontSize: '16px', fontWeight: 700, color: 'white', textAlign: 'center' }}>
+                    राष्ट्रिय समिति
+                </div>
+                <div style={{ fontSize: '14px', fontWeight: 600, color: 'white', textAlign: 'center', opacity: 0.9 }}>
+                    केन्द्रीय कार्य समिति
                 </div>
             </div>
 
-            {/* Signature Area (Bottom Right) */}
+            {/* 2. PROFILE PHOTO SECTION */}
             <div style={{
-                position: 'absolute',
-                bottom: '24px',
-                right: '32px',
-                textAlign: 'center',
-                zIndex: 20
+                marginTop: '-45px',
+                zIndex: 20,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                position: 'relative'
             }}>
-                <img
-                    src={getCorsUrl(cSignature)}
-                    alt="Signature"
-                    style={{ height: '48px', objectFit: 'contain', marginBottom: '2px', opacity: 0.9 }}
-                    {...(!cSignature?.startsWith('blob:') && !cSignature?.startsWith('data:') && !cSignature?.startsWith('/') ? { crossOrigin: "anonymous" } : {})}
-                />
                 <div style={{
-                    borderTop: '1px solid #9ca3af',
                     width: '160px',
-                    margin: '0 auto',
-                    paddingTop: '4px'
+                    height: '185px',
+                    backgroundColor: 'white',
+                    borderRadius: '12px',
+                    padding: '3px',
+                    border: '1px solid #ddd',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                    overflow: 'hidden',
+                    position: 'relative'
                 }}>
-                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#111827' }}>{cName}</div>
-                    <div style={{ fontSize: '11px', fontWeight: 600, color: '#ea580c', textTransform: 'uppercase' }}>{cTitle}</div>
+                    {data.image ? (
+                        <img 
+                            src={getCorsUrl(data.image)} 
+                            alt={data.name} 
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
+                            {...(!data.image?.startsWith('blob:') && !data.image?.startsWith('data:') ? { crossOrigin: "anonymous" } : {})}
+                        />
+                    ) : (
+                        <div style={{ width: '100%', height: '100%', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            👤
+                        </div>
+                    )}
+
+                    {/* SIGNATURE OVER PHOTO */}
+                    <div style={{
+                        position: 'absolute',
+                        bottom: '0',
+                        left: '0',
+                        right: '0',
+                        height: '60px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 30
+                    }}>
+                        <img 
+                            src={getCorsUrl(cSignature)} 
+                            alt="Signature" 
+                            style={{ 
+                                height: '60px', 
+                                objectFit: 'contain',
+                                transform: 'rotate(-5deg)',
+                                filter: 'multiply(1.2)'
+                            }} 
+                        />
+                    </div>
+                </div>
+
+                <div style={{
+                    marginTop: '8px',
+                    fontSize: '15px',
+                    fontWeight: 800,
+                    color: '#000'
+                }}>
+                    प्रमाणित गर्ने
                 </div>
             </div>
 
-            {/* Bottom Accent Line */}
+            {/* 3. INFO SECTION */}
             <div style={{
-                height: '12px',
-                width: '100%',
-                background: 'linear-gradient(90deg, #ea580c 0%, #dc2626 100%)',
+                flex: 1,
+                padding: '10px 40px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                fontSize: '17px',
+                color: '#1e40af', // Blue text for values
+                fontWeight: 700,
+                marginTop: '15px'
+            }}>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <span style={{ width: '85px', color: '#1e3a8a', flexShrink: 0 }}>नाम थर :</span>
+                    <span>{data.name || 'तपाईंको नाम'}</span>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <span style={{ width: '85px', color: '#1e3a8a', flexShrink: 0 }}>पद :</span>
+                    <span>{getPosition() || 'साधारण सदस्य'}</span>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <span style={{ width: '85px', color: '#1e3a8a', flexShrink: 0 }}>ठेगाना :</span>
+                    <span>{getAddress()}</span>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <span style={{ width: '85px', color: '#1e3a8a', flexShrink: 0 }}>सम्पर्क नं. :</span>
+                    <span>{data.phone || '९८XXXXXXXX'}</span>
+                </div>
+            </div>
+
+            {/* 4. RED SIDE RIBBON */}
+            <div style={{
                 position: 'absolute',
-                bottom: 0,
-                left: 0,
-                zIndex: 20
-            }} />
+                right: '0',
+                top: '250px',
+                width: '45px',
+                height: '180px',
+                backgroundColor: '#991b1b', // Dark Red
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderTopLeftRadius: '20px',
+                borderBottomLeftRadius: '20px',
+                writingMode: 'vertical-rl',
+                textOrientation: 'mixed',
+                fontSize: '20px',
+                fontWeight: 700,
+                letterSpacing: '0.1em'
+            }}>
+                परिचय पत्र
+            </div>
+
+            {/* 5. FOOTER SECTION */}
+            <div style={{
+                height: '80px',
+                width: '100%',
+                backgroundColor: 'transparent',
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'flex-end',
+                paddingBottom: '12px'
+            }}>
+                {/* Dark Wave Background */}
+                <div style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '60px',
+                    backgroundColor: '#1f1105',
+                    clipPath: 'polygon(0 40%, 100% 0, 100% 100%, 0 100%)',
+                    zIndex: 25
+                }} />
+
+                {/* Footer Content */}
+                <div style={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    padding: '0 20px',
+                    color: 'white',
+                    fontSize: '13px',
+                    zIndex: 30,
+                    fontWeight: 600
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        📞 ०१५२४९५५७
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        🌐 www.whfnepal.org
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

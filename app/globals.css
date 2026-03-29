@@ -3,6 +3,32 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --color-orange-50: #fef0eb;
+  --color-orange-100: #fcdbd0;
+  --color-orange-200: #f9ba9f;
+  --color-orange-300: #f5966c;
+  --color-orange-400: #f3713f;
+  --color-orange-500: #f15b23;
+  --color-orange-600: #d34516;
+  --color-orange-700: #a93510;
+  --color-orange-800: #842a10;
+  --color-orange-900: #6a2411;
+  --color-orange-950: #390f06;
+
+  --color-red-50: #fdf0ec;
+  --color-red-100: #fad8cd;
+  --color-red-200: #f4b49c;
+  --color-red-300: #ec8c6b;
+  --color-red-400: #e4663e;
+  --color-red-500: #dc4112;
+  --color-red-600: #b4300a;
+  --color-red-700: #91270b;
+  --color-red-800: #73220c;
+  --color-red-900: #5f1e0e;
+  --color-red-950: #330c04;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -54,8 +80,8 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: #f15b23;
+  --primary-foreground: #ffffff;
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -88,8 +114,8 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+  --primary: #f15b23;
+  --primary-foreground: #ffffff;
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);

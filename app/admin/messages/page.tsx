@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Search, Send, User, Clock, MessageSquare } from "lucide-react";
+import { Search, Send, User, Clock, MessageSquare, Trash2 } from "lucide-react";
 
 interface Conversation {
     conversationId: string;
@@ -108,6 +108,24 @@ export default function AdminMessagesPage() {
         }
     };
 
+    const handleDelete = async () => {
+        if (!selectedConvId || !confirm("Are you sure you want to delete this conversation? This cannot be undone.")) return;
+
+        try {
+            const res = await fetch(`/api/chat/conversations?conversationId=${selectedConvId}`, {
+                method: 'DELETE'
+            });
+
+            if (res.ok) {
+                setConversations(prev => prev.filter(c => c.conversationId !== selectedConvId));
+                setSelectedConvId(null);
+                setMessages([]);
+            }
+        } catch (error) {
+            console.error("Failed to delete conversation:", error);
+        }
+    };
+
     const handleKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
@@ -190,6 +208,13 @@ export default function AdminMessagesPage() {
                                     </span>
                                 </div>
                             </div>
+                            <button
+                                onClick={handleDelete}
+                                className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                                title="Delete Conversation"
+                            >
+                                <Trash2 className="w-5 h-5" />
+                            </button>
                         </div>
 
                         {/* Messages */}
@@ -208,8 +233,8 @@ export default function AdminMessagesPage() {
                                                 </span>
                                             </div>
                                             <div className={`p-4 rounded-2xl text-sm ${isAdmin
-                                                    ? 'bg-orange-600 text-white rounded-tr-none shadow-lg shadow-orange-900/20'
-                                                    : 'bg-white/10 text-gray-200 rounded-tl-none border border-white/5'
+                                                ? 'bg-orange-600 text-white rounded-tr-none shadow-lg shadow-orange-900/20'
+                                                : 'bg-white/10 text-gray-200 rounded-tl-none border border-white/5'
                                                 }`}>
                                                 {msg.content}
                                             </div>

@@ -20,7 +20,14 @@ export interface IUser extends Document {
     image?: string;
     address?: IAddress;
     membershipStatus: 'Pending' | 'Approved' | 'Rejected';
+    membershipType: 'Regular' | 'Lifetime';
     membershipDate?: Date;
+    paymentInfo?: {
+        transactionId: string;
+        receiptImage?: string;
+        amountPaid: number;
+        paymentStatus: 'Unpaid' | 'Paid' | 'Verified';
+    };
     isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -86,8 +93,23 @@ const UserSchema = new Schema<IUser>(
             enum: ['Pending', 'Approved', 'Rejected'],
             default: 'Pending',
         },
+        membershipType: {
+            type: String,
+            enum: ['Regular', 'Lifetime'],
+            default: 'Regular',
+        },
         membershipDate: {
             type: Date,
+        },
+        paymentInfo: {
+            transactionId: { type: String, trim: true },
+            receiptImage: { type: String, default: null },
+            amountPaid: { type: Number, default: 0 },
+            paymentStatus: {
+                type: String,
+                enum: ['Unpaid', 'Paid', 'Verified'],
+                default: 'Paid',
+            },
         },
         isActive: {
             type: Boolean,
@@ -140,6 +162,12 @@ UserSchema.index({ membershipStatus: 1 });
 UserSchema.index({ role: 1 });
 
 
-const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+
+// Clear existing model if it exists to ensure schema sync
+if (mongoose.models.User) {
+    delete mongoose.models.User;
+}
+
+const User: Model<IUser> = mongoose.model<IUser>('User', UserSchema);
 
 export default User;

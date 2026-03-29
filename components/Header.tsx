@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ModeToggle } from "@/components/mode-toggle";
+import { useSiteSettings } from "@/components/SiteSettingsContext";
 
 export default function Header() {
   const router = useRouter();
@@ -37,6 +38,7 @@ export default function Header() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const { settings } = useSiteSettings();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -132,25 +134,32 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <div className="relative w-12 h-12 rounded-full overflow-hidden ring-2 ring-orange-500/50 group-hover:ring-orange-400 transition-all duration-300">
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative w-14 h-14 bg-white/5 rounded-xl border border-white/10 p-1 group-hover:bg-white/10 group-hover:border-orange-500/50 transition-all duration-300 flex items-center justify-center overflow-hidden">
               <Image
-                src="/whf-logo.png"
-                alt="World Hindu Federation Nepal"
+                src={settings.siteLogo || "/whf-logo.png"}
+                alt={settings.siteName || "WHF Logo"}
                 fill
                 className="object-contain p-1"
                 priority
               />
             </div>
             <div className="flex flex-col">
-              <span className="text-foreground font-bold text-lg leading-tight tracking-tight">
-                विश्व हिन्दु महासंघ
-              </span>
-              <span className="text-orange-400 text-xs font-medium tracking-wider">
-                नेपाल
+              <span className="text-foreground font-bold text-lg leading-tight tracking-tight group-hover:text-orange-400 transition-colors">
+                {settings.siteName.includes(" ") ? (
+                  <>
+                    {settings.siteName.split(" ").slice(0, -1).join(" ")}
+                    <br />
+                    <span className="text-orange-500 text-sm tracking-widest uppercase">
+                      {settings.siteName.split(" ").slice(-1)}
+                    </span>
+                  </>
+                ) : (
+                  settings.siteName
+                )}
               </span>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
@@ -300,7 +309,20 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent className="bg-background border-border">
                 <SheetHeader>
-                  <SheetTitle className="text-foreground">मेनु</SheetTitle>
+                  <div className="flex items-center gap-3 py-4 border-b border-border mb-2">
+                    <div className="relative w-12 h-12 bg-accent rounded-lg p-1 border border-border flex-shrink-0">
+                      <Image
+                        src={settings.siteLogo || "/whf-logo.png"}
+                        alt={settings.siteName}
+                        fill
+                        className="object-contain p-1"
+                      />
+                    </div>
+                    <span className="text-foreground font-bold text-sm leading-tight text-left">
+                      {settings.siteName}
+                    </span>
+                  </div>
+                  <SheetTitle className="sr-only">नेभिगेसन मेनु</SheetTitle>
                 </SheetHeader>
                 <nav className="flex flex-col gap-2 mt-6">
                   {navLinks.map((link) => (

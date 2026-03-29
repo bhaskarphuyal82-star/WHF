@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
+export const dynamic = "force-dynamic";
 
 // GET - Single member details
 export async function GET(
@@ -40,14 +41,27 @@ export async function PUT(
         const { id } = await params;
         const body = await request.json();
 
+        // Only allow updating specific fields
+        const allowedFields = [
+            'name', 'phone', 'email', 'membershipStatus', 
+            'membershipType', 'paymentInfo', 'address'
+        ];
+        const updateData: any = {};
+        
+        for (const field of allowedFields) {
+            if (body[field] !== undefined) {
+                updateData[field] = body[field];
+            }
+        }
+
         // If approving membership, set the date
-        if (body.membershipStatus === 'Approved') {
-            body.membershipDate = new Date();
+        if (updateData.membershipStatus === 'Approved') {
+            updateData.membershipDate = new Date();
         }
 
         const member = await User.findByIdAndUpdate(
             id,
-            { $set: body },
+            { $set: updateData },
             { new: true, runValidators: true }
         ).select('-password');
 

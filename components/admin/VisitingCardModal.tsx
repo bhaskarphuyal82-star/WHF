@@ -1,3 +1,4 @@
+"use client";
 
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -5,20 +6,26 @@ import { Button } from "@/components/ui/button";
 import { Download, Loader2, FileText } from "lucide-react";
 import VisitingCard from "./VisitingCard";
 import html2canvas from "html2canvas";
-import { IRepresentative } from "@/models/Representative";
+import type { IRepresentative } from "@/models/Representative";
 import { jsPDF } from "jspdf";
 
 interface VisitingCardModalProps {
     isOpen: boolean;
     onClose: () => void;
-    data: IRepresentative | any | null;
+    data: any | null;
 }
 
 export default function VisitingCardModal({ isOpen, onClose, data }: VisitingCardModalProps) {
     const [generating, setGenerating] = useState(false);
     const [cardData, setCardData] = useState<any>(null);
     const [proxyImage, setProxyImage] = useState<string | null>(null);
-    const [settings, setSettings] = useState<{ chairmanName: string; chairmanTitle: string; chairmanSignature: string; } | null>(null);
+    const [settings, setSettings] = useState<{ 
+        chairmanName: string; 
+        chairmanTitle: string; 
+        chairmanSignature: string; 
+        siteName: string; 
+        siteLogo: string;
+    } | null>(null);
 
     // Fetch site settings
     useEffect(() => {
@@ -38,19 +45,19 @@ export default function VisitingCardModal({ isOpen, onClose, data }: VisitingCar
     useEffect(() => {
         if (data) {
             setCardData(data);
-            if (data.image) {
+            if (typeof data.image === 'string') {
                 const fetchImage = async () => {
                     try {
-                        const response = await fetch(data.image, { mode: 'cors' });
+                        const response = await fetch(data.image as string, { mode: 'cors' });
                         if (response.ok) {
                             const blob = await response.blob();
                             const objectUrl = URL.createObjectURL(blob);
                             setProxyImage(objectUrl);
                         } else {
-                            setProxyImage(data.image);
+                            setProxyImage(data.image as string);
                         }
-                    } catch (e) {
-                        setProxyImage(data.image);
+                    } catch {
+                        setProxyImage(data.image as string);
                     }
                 };
                 fetchImage();
@@ -81,9 +88,14 @@ export default function VisitingCardModal({ isOpen, onClose, data }: VisitingCar
         signature: settings.chairmanSignature
     } : undefined;
 
+    const siteSettings = settings ? {
+        siteName: settings.siteName,
+        siteLogo: settings.siteLogo
+    } : undefined;
+
     // Helper to generate canvas
     const generateCanvas = async () => {
-        const element = document.getElementById(`card-${data._id}`);
+        const element = document.getElementById(`card-${(data as any)._id}`);
         if (!element) throw new Error("Card element not found");
 
         // Ensure images are loaded
@@ -133,7 +145,7 @@ export default function VisitingCardModal({ isOpen, onClose, data }: VisitingCar
             const url = canvas.toDataURL("image/png");
 
             const link = document.createElement("a");
-            link.download = `${data.name.replace(/\s+/g, '-').toLowerCase()}-card.png`;
+            link.download = `${(data?.name || 'card').replace(/\s+/g, '-').toLowerCase()}-card.png`;
             link.href = url;
             document.body.appendChild(link);
             link.click();
@@ -158,11 +170,12 @@ export default function VisitingCardModal({ isOpen, onClose, data }: VisitingCar
                 format: [89, 51]
             });
 
-            pdf.addImage(imgData, 'PNG', 0, 0, 89, 51);
-            pdf.save(`${data.name.replace(/\s+/g, '-').toLowerCase()}-card.pdf`);
-        } catch (err: any) {
+            pdf.addImage(imgData, 'PNG', 0, 0, 51, 89);
+            pdf.save(`${(data?.name || 'card').replace(/\s+/g, '-').toLowerCase()}-card.pdf`);
+        } catch (err: unknown) {
             console.error("Failed to generate PDF", err);
-            alert(`PDF Generation failed: ${err.message || err}`);
+            const message = err instanceof Error ? err.message : String(err);
+            alert(`PDF Generation failed: ${message}`);
         } finally {
             setGenerating(false);
         }
@@ -170,11 +183,11 @@ export default function VisitingCardModal({ isOpen, onClose, data }: VisitingCar
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-4xl bg-gray-50 border-none">
+            <DialogContent className=" bg-gray-50 border-none">
                 <DialogHeader>
-                    <DialogTitle className="text-gray-900 text-xl font-bold">Visiting Card Preview</DialogTitle>
+                    <DialogTitle className="text-gray-900 text-xl font-bold">परिचय पत्रको नमुना</DialogTitle>
                     <DialogDescription className="text-gray-500 text-sm">
-                        This preview renders the card exactly as it will download.
+                        यो पूर्वावलोकनले डाउनलोड गर्दा कार्ड कस्तो देखिन्छ भन्ने देखाउँछ।
                     </DialogDescription>
                 </DialogHeader>
 
@@ -182,12 +195,13 @@ export default function VisitingCardModal({ isOpen, onClose, data }: VisitingCar
 
                     {/* Card Container with responsive scaling to fit screen */}
                     <div className="w-full flex justify-center py-2 overflow-hidden">
-                        <div className="transform scale-[0.5] sm:scale-75 md:scale-100 origin-top transition-transform duration-300 -mb-[175px] sm:-mb-[87px] md:mb-0">
+                        <div className="transform scale-[0.6] sm:scale-75 md:scale-90 origin-top transition-transform duration-300 -mb-[250px] sm:-mb-[150px] md:mb-0">
                             <div className="shadow-2xl rounded-xl bg-white">
                                 <VisitingCard
                                     data={displayData}
                                     id={`card-${data._id}`}
                                     chairmanDetails={chairmanDetails}
+                                    siteSettings={siteSettings}
                                 />
                             </div>
                         </div>
@@ -195,7 +209,7 @@ export default function VisitingCardModal({ isOpen, onClose, data }: VisitingCar
 
                     <div className="flex gap-4">
                         <Button variant="outline" onClick={onClose} disabled={generating}>
-                            Close
+                            बन्द गर्नुहोस्
                         </Button>
 
                         <Button
@@ -209,7 +223,7 @@ export default function VisitingCardModal({ isOpen, onClose, data }: VisitingCar
                             ) : (
                                 <FileText className="w-4 h-4 mr-2" />
                             )}
-                            Download PDF
+                            PDF डाउनलोड गर्नुहोस्
                         </Button>
 
                         <Button
@@ -220,12 +234,12 @@ export default function VisitingCardModal({ isOpen, onClose, data }: VisitingCar
                             {generating ? (
                                 <>
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Processing...
+                                    प्रक्रिया हुँदैछ...
                                 </>
                             ) : (
                                 <>
                                     <Download className="w-4 h-4 mr-2" />
-                                    Download PNG
+                                    PNG डाउनलोड गर्नुहोस्
                                 </>
                             )}
                         </Button>

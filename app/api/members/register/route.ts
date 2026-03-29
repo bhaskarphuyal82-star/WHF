@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
         await connectDB();
 
         const body = await request.json();
-        const { name, email, phone, password, address, image } = body;
+        const { name, email, phone, password, address, image, membershipType, paymentInfo } = body;
 
         // Check if user already exists
         const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -27,6 +27,8 @@ export async function POST(request: NextRequest) {
             password,
             address,
             image,
+            membershipType: membershipType || 'Regular',
+            paymentInfo: paymentInfo || null,
             role: 'member',
             membershipStatus: 'Pending',
         });

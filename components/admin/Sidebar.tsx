@@ -18,6 +18,8 @@ import {
     Building2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useSiteSettings } from "@/components/SiteSettingsContext";
+import Image from "next/image";
 
 const navigation = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -38,13 +40,26 @@ const navigation = [
 
 export default function AdminSidebar() {
     const pathname = usePathname();
+    const { settings } = useSiteSettings();
 
     return (
         <div className="flex h-full w-64 flex-col bg-gradient-to-b from-gray-900 to-black border-r border-white/10">
             {/* Logo */}
-            <div className="flex h-20 items-center px-6 border-b border-white/10">
-                <h1 className="text-xl font-bold text-white">WHF Nepal</h1>
-                <span className="ml-2 px-2 py-1 text-xs font-semibold bg-orange-500/20 text-orange-400 rounded">
+            <div className="flex h-20 items-center px-6 border-b border-white/10 flex-shrink-0">
+                <div className="flex items-center gap-2 overflow-hidden">
+                    <div className="relative w-8 h-8 flex-shrink-0 rounded-full overflow-hidden bg-white/10">
+                        <Image
+                            src={settings.siteLogo || "/whf-logo.png"}
+                            alt={settings.siteName}
+                            fill
+                            className="object-contain"
+                        />
+                    </div>
+                    <h1 className="text-base font-bold text-white truncate" title={settings.siteName}>
+                        {settings.siteName}
+                    </h1>
+                </div>
+                <span className="ml-auto flex-shrink-0 px-2 py-1 text-[10px] font-semibold bg-orange-500/20 text-orange-400 rounded">
                     Admin
                 </span>
             </div>

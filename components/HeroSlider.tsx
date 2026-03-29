@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
+import { useSiteSettings } from "@/components/SiteSettingsContext";
 
 interface Slider {
     _id: string;
@@ -58,24 +59,38 @@ const AnimatedTitle = ({ text }: { text: string }) => {
 
 // Floating particles
 const FloatingParticles = () => {
+    const [particles, setParticles] = useState<any[]>([]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setParticles([...Array(30)].map(() => ({
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight,
+                yOffset: Math.random() * -500,
+                duration: Math.random() * 10 + 10,
+                delay: Math.random() * 5,
+            })));
+        }, 0);
+        return () => clearTimeout(timer);
+    }, []);
+
+    if (particles.length === 0) return null;
+
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {[...Array(30)].map((_, i) => (
+            {particles.map((p, i) => (
                 <motion.div
                     key={i}
                     className="absolute w-1 h-1 bg-orange-400/30 rounded-full"
-                    initial={{
-                        x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-                        y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
-                    }}
+                    initial={{ x: p.x, y: p.y }}
                     animate={{
-                        y: [null, Math.random() * -500],
+                        y: [null, p.yOffset],
                         opacity: [0, 1, 0],
                     }}
                     transition={{
-                        duration: Math.random() * 10 + 10,
+                        duration: p.duration,
                         repeat: Infinity,
-                        delay: Math.random() * 5,
+                        delay: p.delay,
                     }}
                 />
             ))}
@@ -104,6 +119,7 @@ export default function HeroSlider() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
     const [direction, setDirection] = useState(0);
+    const { settings } = useSiteSettings();
 
     useEffect(() => {
         const fetchSliders = async () => {
@@ -205,7 +221,24 @@ export default function HeroSlider() {
                         </span>
                     </motion.div>
 
-                    <AnimatedTitle text="विश्व हिन्दु महासंघ नेपाल" />
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                        className="flex justify-center mb-6"
+                    >
+                        <div className="relative w-32 h-32 md:w-40 md:h-40 p-2 rounded-full overflow-hidden border-4 border border-orange-500/30 bg-white/10 backdrop-blur-md shadow-2xl shadow-orange-500/20">
+                            <Image
+                                src={settings.siteLogo || "/whf-logo.png"}
+                                alt={settings.siteName}
+                                fill
+                                className="object-contain p-2"
+                                priority
+                            />
+                        </div>
+                    </motion.div>
+
+                    <AnimatedTitle text={settings.siteName} />
 
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}

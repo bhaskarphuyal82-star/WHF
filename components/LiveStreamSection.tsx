@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Radio, X, MapPin, Calendar, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -68,14 +68,24 @@ export default function LiveStreamSection({ liveStreams }: LiveStreamSectionProp
     const liveNow = liveStreams.filter(s => s.status === 'Live');
     const scheduled = liveStreams.filter(s => s.status === 'Scheduled');
 
+
+    useEffect(() => {
+        if (selectedStream) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [selectedStream]);
+
     const openStreamModal = (stream: LiveStreamItem) => {
         setSelectedStream(stream);
-        document.body.style.overflow = 'hidden';
     };
 
     const closeStreamModal = () => {
         setSelectedStream(null);
-        document.body.style.overflow = 'auto';
     };
 
     const formatScheduledDate = (dateString: string) => {

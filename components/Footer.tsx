@@ -1,13 +1,17 @@
+"use client";
+
 import Link from "next/link";
+import { useSiteSettings } from "@/components/SiteSettingsContext";
 
 const Footer = () => {
+    const { settings } = useSiteSettings();
     return (
         <footer className="relative py-12 border-t border-white/10 bg-black text-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid md:grid-cols-3 gap-8 mb-8">
                     {/* Organization Info */}
                     <div>
-                        <h3 className="text-xl font-bold mb-4">विश्व हिन्दु महासंघ नेपाल</h3>
+                        <h3 className="text-xl font-bold mb-4">{settings.siteName}</h3>
                         <p className="text-gray-400 text-sm leading-relaxed">
                             हिन्दु आध्यात्मिक मूल्यहरू, सांस्कृतिक परम्पराहरू, र नेपालभरि सामुदायिक कल्याणको संरक्षण र प्रवर्द्धन गर्न प्रतिबद्ध।
                         </p>
@@ -49,7 +53,7 @@ const Footer = () => {
 
                 <div className="border-t border-white/10 pt-8 text-center">
                     <p className="text-gray-500 text-sm">
-                        © {new Date().getFullYear()} विश्व हिन्दु महासंघ नेपाल. सबै अधिकार सुरक्षित।
+                        © {new Date().getFullYear()} {settings.siteName}. सबै अधिकार सुरक्षित।
                     </p>
                 </div>
             </div>

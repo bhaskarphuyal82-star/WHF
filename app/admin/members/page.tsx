@@ -22,6 +22,7 @@ interface Member {
         tole?: string;
     };
     membershipStatus: 'Pending' | 'Approved' | 'Rejected';
+    membershipType: 'Regular' | 'Lifetime';
     membershipDate?: string;
     createdAt: string;
 }
@@ -42,12 +43,13 @@ export default function MembersPage() {
         return () => clearTimeout(timeoutId);
     }, [statusFilter, searchQuery]);
 
-    const fetchMembers = async () => {
+    const fetchMembers = async (forceRefresh = false) => {
         try {
             setLoading(true);
             const params = new URLSearchParams();
             if (statusFilter) params.append('status', statusFilter);
             if (searchQuery) params.append('search', searchQuery);
+            if (forceRefresh) params.append('t', Date.now().toString());
 
             const response = await fetch(`/api/members?${params.toString()}`);
             const data = await response.json();
@@ -71,7 +73,28 @@ export default function MembersPage() {
                 fetchMembers();
             }
         } catch (error) {
-            console.error('Failed to update member:', error);
+            console.error('Failed to update member status:', error);
+        }
+    };
+
+    const updateMemberType = async (id: string, type: 'Regular' | 'Lifetime') => {
+        try {
+            const response = await fetch(`/api/members/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ membershipType: type }),
+            });
+
+            if (response.ok) {
+                // Fetch fresh data with cache buster
+                await fetchMembers(true);
+            } else {
+                const data = await response.json();
+                alert(`Error: ${data.error || 'Failed to update member type'}`);
+            }
+        } catch (error) {
+            console.error('Failed to update member type:', error);
+            alert('सर्भरसँग जडान गर्न असमर्थ');
         }
     };
 
@@ -109,6 +132,17 @@ export default function MembersPage() {
         }
     };
 
+    const getMembershipTypeBadge = (type: string) => {
+        switch (type) {
+            case 'Lifetime':
+                return <span className="px-2 py-1 text-xs font-medium bg-purple-500/20 text-purple-400 rounded border border-purple-500/30">आजीवन सदस्य</span>;
+            case 'Regular':
+                return <span className="px-2 py-1 text-xs font-medium bg-blue-500/20 text-blue-400 rounded border border-blue-500/30">साधारण सदस्य</span>;
+            default:
+                return <span className="px-2 py-1 text-xs font-medium bg-blue-500/20 text-blue-400 rounded border border-blue-500/30">साधारण सदस्य</span>;
+        }
+    };
+
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
             month: 'short',
@@ -122,13 +156,29 @@ export default function MembersPage() {
             <Button
                 size="sm"
                 className="bg-orange-600 hover:bg-orange-700 text-white h-8 w-8 p-0"
-                title="Generate Card"
+                title="परिचय पत्र सिर्जना गर्नुहोस्"
                 onClick={() => setSelectedMemberForCard({
                     ...member,
-                    position: 'General Member' // Default position
+                    position: member.membershipType === 'Lifetime' ? 'आजीवन सदस्य' : 'साधारण सदस्य'
                 })}
             >
                 <CreditCard className="w-4 h-4" />
+            </Button>
+            <Button
+                size="sm"
+                variant="outline"
+                className={`h-8 px-2 text-xs transition-colors ${member.membershipType === 'Lifetime' 
+                    ? 'border-purple-500/50 text-purple-400 hover:bg-purple-500/10' 
+                    : 'border-blue-500/50 text-blue-400 hover:bg-blue-500/10'}`}
+                onClick={() => {
+                    const nextType = member.membershipType === 'Lifetime' ? 'Regular' : 'Lifetime';
+                    const confirmMsg = nextType === 'Lifetime' ? 'आजीवन सदस्य बनाउनुहोस्?' : 'साधारण सदस्य बनाउनुहोस्?';
+                    if (confirm(confirmMsg)) {
+                        updateMemberType(member._id, nextType);
+                    }
+                }}
+            >
+                {member.membershipType === 'Lifetime' ? 'साधारण सदस्य बनाउनुहोस्' : 'आजीवन सदस्य बनाउनुहोस्'}
             </Button>
             {(!member.membershipStatus || member.membershipStatus === 'Pending') && (
                 <>
@@ -289,6 +339,7 @@ export default function MembersPage() {
                             <tr>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Member</th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Address</th>
+                                <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Type</th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Status</th>
                                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-400 uppercase">Date</th>
                                 <th className="px-6 py-4 text-right text-xs font-medium text-gray-400 uppercase">Actions</th>
@@ -326,6 +377,9 @@ export default function MembersPage() {
                                         )}
                                     </td>
                                     <td className="px-6 py-4">
+                                        {getMembershipTypeBadge(member.membershipType)}
+                                    </td>
+                                    <td className="px-6 py-4">
                                         {getStatusBadge(member.membershipStatus)}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-400">
@@ -354,8 +408,9 @@ export default function MembersPage() {
                                         <span className="text-sm">No Image</span>
                                     </div>
                                 )}
-                                <div className="absolute top-2 right-2">
+                                <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
                                     {getStatusBadge(member.membershipStatus)}
+                                    {getMembershipTypeBadge(member.membershipType)}
                                 </div>
                             </div>
 

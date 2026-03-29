@@ -47,3 +47,23 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
+
+// DELETE: Delete a conversation
+export async function DELETE(request: NextRequest) {
+    try {
+        await connectDB();
+        const { searchParams } = new URL(request.url);
+        const conversationId = searchParams.get('conversationId');
+
+        if (!conversationId) {
+            return NextResponse.json({ error: 'Conversation ID required' }, { status: 400 });
+        }
+
+        await ChatMessage.deleteMany({ conversationId });
+
+        return NextResponse.json({ success: true, message: 'Conversation deleted' });
+    } catch (error) {
+        console.error('Error deleting conversation:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
+export const dynamic = "force-dynamic";
 import User from '@/models/User';
 import jwt from 'jsonwebtoken';
 
@@ -63,7 +64,7 @@ export async function PUT(request: NextRequest) {
         await connectDB();
 
         // Only allow updating specific fields
-        const allowedFields = ['name', 'phone', 'image', 'address'];
+        const allowedFields = ['name', 'phone', 'image', 'address', 'membershipType'];
         const updateData: any = {};
 
         for (const field of allowedFields) {

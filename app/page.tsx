@@ -18,6 +18,7 @@ import Representative from "@/models/Representative";
 import Heritage from "@/models/Heritage";
 import Gallery from "@/models/Gallery";
 import AffiliatedOrg from "@/models/AffiliatedOrg";
+import SiteSettings from "@/models/SiteSettings";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -38,6 +39,7 @@ async function getData() {
     galleries,
     heritages,
     affiliatedOrgs,
+    settings,
     membersCount,
     eventsCount,
     annualEventsCount
@@ -51,6 +53,7 @@ async function getData() {
     Gallery.find({ published: true }).sort({ createdAt: -1 }).limit(4).lean(),
     Heritage.find({ status: 'Active' }).sort({ order: 1 }).limit(4).lean(),
     AffiliatedOrg.find({ status: 'Active' }).sort({ order: 1, createdAt: -1 }).lean(),
+    SiteSettings.findOne().lean(),
     User.countDocuments({ role: 'member' }),
     Event.countDocuments({}),
     Event.countDocuments({ startDate: { $gte: startOfYear } })
@@ -66,6 +69,7 @@ async function getData() {
     galleries: JSON.parse(JSON.stringify(galleries)),
     heritages: JSON.parse(JSON.stringify(heritages)),
     affiliatedOrgs: JSON.parse(JSON.stringify(affiliatedOrgs)),
+    siteName: (settings as any)?.siteName || "विश्व हिन्दु महासंघ नेपाल",
     stats: {
       membersCount,
       eventsCount,
@@ -85,6 +89,7 @@ export default async function Home() {
     galleries,
     heritages,
     affiliatedOrgs,
+    siteName,
     stats
   } = await getData();
 
@@ -149,7 +154,7 @@ export default async function Home() {
                 समुदाय निर्माण
               </h2>
               <p className="text-muted-foreground text-lg leading-relaxed mb-6">
-                विश्व हिन्दु महासंघ नेपाल हिन्दु आध्यात्मिक मूल्यहरू, सांस्कृतिक परम्पराहरू, र नेपालभरि सामुदायिक कल्याणको संरक्षण र प्रवर्द्धन गर्न प्रतिबद्ध छ।
+                {siteName} हिन्दु आध्यात्मिक मूल्यहरू, सांस्कृतिक परम्पराहरू, र नेपालभरि सामुदायिक कल्याणको संरक्षण र प्रवर्द्धन गर्न प्रतिबद्ध छ।
               </p>
               <p className="text-muted-foreground leading-relaxed mb-8">
                 हाम्रा विभिन्न कार्यक्रमहरू र पहलहरू मार्फत, हामी सामुदायिक बन्धनहरू बलियो बनाउन, सांस्कृतिक शिक्षालाई समर्थन गर्न, र हिन्दु समुदायहरूको अधिकार र कल्याणको वकालत गर्न काम गर्छौं।
